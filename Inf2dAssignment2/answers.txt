@@ -1,0 +1,114 @@
+-----------------------------------------------------------------------
+ ------ Informatics 2D - 2011/12 - Second Assignment - Planning ------
+-----------------------------------------------------------------------
+ 
+ Write here you matriculation number (only - your name is not needed)
+ Matriculation Number: s1006260
+ 
+1.1) Since the way in which squares are connected will never change, I would define them with an atemporal predicate, 'connected', which takes 2 squares which are adjacent and the direction which the second square is from the first.
+
+For example,	connected(loc1-1, loc1-2, n)
+		connected(loc1-1, loc2-1, e)
+		connected(loc2-1, loc1-1, s)
+		connected(loc2-1, loc1-1, w)
+
+Where n is north, e is east, s is south and w is west.
+
+
+1.2) For this I would use 2 fluent predicates, as the position of the agent and the boxes will change over time, and hence so will the empty squares change. My predicates will be named 'at' and 'empty', 'at' taking the object, the location and the current situation, and 'empty' taking a location and the current situation.
+
+Examples,	at(A,loc2-3,s0)
+		at(B,loc2-2,s0)
+		at(C,loc2-1,s0)
+		at(agent,loc3-2,s0)
+		empty(loc2-4, s0)
+
+Where a,b and c refer to crates A,B and C respectively, and agent to the agent.
+
+
+1.3) Initial State:
+
+box(a,b,c) ^
+connected(loc1-1, loc1-2, n) ^
+connected(loc1-2, loc1-3, n) ^
+connected(loc1-3, loc1-4, n) ^
+connected(loc2-1, loc2-2, n) ^
+connected(loc2-2, loc2-3, n) ^
+connected(loc2-3, loc2-4, n) ^
+connected(loc3-1, loc3-2, n) ^
+connected(loc3-2, loc3-3, n) ^
+connected(loc1-2, loc1-1, s) ^
+connected(loc1-3, loc1-2, s) ^
+connected(loc1-4, loc1-3, s) ^
+connected(loc2-2, loc2-1, s) ^
+connected(loc2-3, loc2-2, s) ^
+connected(loc2-4, loc2-3, s) ^
+connected(loc3-2, loc3-1, s) ^
+connected(loc3-3, loc3-2, s) ^
+connected(loc1-1, loc2-1, e) ^
+connected(loc2-1, loc3-1, e) ^
+connected(loc1-2, loc2-2, e) ^
+connected(loc2-2, loc3-2, e) ^
+connected(loc1-3, loc2-3, e) ^
+connected(loc2-3, loc3-3, e) ^
+connected(loc1-4, loc2-4, e) ^
+connected(loc2-1, loc1-1, w) ^
+connected(loc3-1, loc2-1, w) ^
+connected(loc2-2, loc1-2, w) ^
+connected(loc3-2, loc2-2, w) ^
+connected(loc2-3, loc1-3, w) ^
+connected(loc3-3, loc2-3, w) ^
+connected(loc2-4, loc1-4, w) ^
+at(a,loc2-3,s0) ^
+at(b,loc2-2,s0) ^
+at(c,loc2-1,s0) ^
+at(agent,loc3-2,s0) ^
+empty(loc1-1,s0) ^
+empty(loc1-2,s0) ^
+empty(loc1-3,s0) ^
+empty(loc1-4,s0) ^
+empty(loc2-4,s0) ^
+empty(loc3-1,s0) ^
+empty(loc3-3,s0)
+
+
+1.4) Goal State:
+
+at(A,loc1-2,s0) ^
+at(B,loc1-3,s0) ^
+at(C,loc1-1,s0) 
+
+1.5) 	Action:	move(direction)
+	Possibility Axion: at(agent,x,s) and connected (x,y,direction) and empty(y,s) => Poss(move(direction),s)
+	Effect Axiom: Poss(move(disrection), s) => at(agent,y,s) and empty(x,s)
+
+
+1.6)	Action: push(direction)
+	Possibility Axiom: at(agent,x,s) and connected(x,y,direction) and at(box,y,s) and connected(y,z,direction) and empty(z,s) => Poss(push(direction),s)
+	Effect Axiom: Poss(push(direction),s) => empty(x,s) and at(agent,y,s) and at(agent,z,s)
+
+
+1.7) This problem is known as the Frame problem - we need to not only state what has changed, but also state what has stayed the same. 
+
+One solution is to write specific frame axioms which cover everything which stays the same. This is impractical, however, since in big systems many many frame axioms will have to be written. Furthermore it is inneficient, as most things will stay the same most of the time.
+
+Successor states solve this problem through the use of <=>, which specifies the truth value of the fluent in the next as a function of the action and the trusth value in the current state. This ensures that no additional frame axioms will be required.
+
+
+
+
+1.8) Successor States:
+
+poss(a,s) => (at(agent,x,result(a,s)) <=> ((a=move(dir) or a=push(dir)) and at(agent,y,s) and connected(y,x,dir) or (not(a=move(dir)) and not(a=push(dir)) and at(agent,x,s))))
+
+poss(a,s) => (at(box,x,result(a,s)) <=> (at(box,y,s) and connected(y,x,dir) and a=push(dir) and connected(z,y,dir) and at(agent,z,s)) or (at(box,x,s) and not(connected(y,x,dir) and at(agent,y,s) and a=push(dir))))
+
+poss(a,s) => empty(x,result(a,s) <=> (at(agent,x,s) and (a=move(dir) or a=push(dir)))
+or (empty(x,s) and not(a=push(dir) and connected(y,x,dir) and connected (z,y,dir) and at(box,y,s) and at(agent,z,s)) and not(a=move(dir) and connected(y,x,dir) and at(agent,y,s))))
+
+
+1.9)
+
+
+--------------------
+Answers to parts 2 and 3 should be included in the appropriate domain-*.pl and instance-*.pl files.
